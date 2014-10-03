@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>Spektroskopia Mossbauerowska</string>
+   <string>Obsługa spektroskopu</string>
   </property>
   <property name="locale">
    <locale language="Polish" country="Poland"/>
@@ -26,6 +26,19 @@
    <layout class="QGridLayout" name="gridLayout_2">
     <item row="0" column="0" rowspan="2">
      <layout class="QGridLayout" name="gridLayout">
+      <item row="1" column="1">
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
       <item row="1" column="2">
        <spacer name="horizontalSpacer">
         <property name="orientation">
@@ -619,7 +632,7 @@
           <item row="0" column="1">
            <widget class="QPushButton" name="commandSendButton">
             <property name="text">
-             <string>Send</string>
+             <string>Wyślij</string>
             </property>
            </widget>
           </item>
@@ -627,20 +640,7 @@
         </item>
        </layout>
       </item>
-      <item row="1" column="1">
-       <spacer name="horizontalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="2" column="0" colspan="3">
+      <item row="3" column="0" colspan="3">
        <widget class="QPlainTextEdit" name="dataReceived">
         <property name="enabled">
          <bool>false</bool>
@@ -648,7 +648,7 @@
         <property name="minimumSize">
          <size>
           <width>0</width>
-          <height>141</height>
+          <height>150</height>
          </size>
         </property>
         <property name="maximumSize">
