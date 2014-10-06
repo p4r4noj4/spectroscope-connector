@@ -1,4 +1,6 @@
 __pycache__
 config
+config.db
 *.autosave
+*.pyc
 

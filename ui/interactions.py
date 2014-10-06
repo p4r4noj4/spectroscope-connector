@@ -1,3 +1,6 @@
+# coding=utf-8
+from connector import rs232
+
 __author__ = 'Igor Jurkowski'
 
 from threading import Thread, Lock
@@ -36,13 +39,14 @@ class GlobalElements:
 
 def open_settings():
     GlobalElements.SettingsDialog.show()
+    setup_port_combobox()
     baud_rate_combo_box = GlobalElements.SettingsDialog.findChild(QComboBox, "comboBoxBaudrate")
     baud_rate_combo_box.setEditText(str(GlobalElements.Config["baudrate"]))
-    GlobalElements.StatusBar.showMessage("Zmiana ustawień")
+    GlobalElements.StatusBar.showMessage(u"Zmiana ustawień")
 
 
 def close_settings():
-    GlobalElements.StatusBar.showMessage("Ustawienia odrzucone")
+    GlobalElements.StatusBar.showMessage(u"Ustawienia odrzucone")
     GlobalElements.SettingsDialog.reject()
 
 
@@ -72,10 +76,10 @@ def accept_settings():
 
 def send_command():
     if get_serial().isOpen():
-        get_serial().write(GlobalElements.MainWindow.findChild(QLineEdit, "commandText").text())
-        GlobalElements.StatusBar.showMessage("Polecenie wysłane")
+        get_serial().write(GlobalElements.MainWindow.findChild(QLineEdit, "commandText").text().encode())
+        GlobalElements.StatusBar.showMessage(u"Polecenie wysłane")
     else:
-        GlobalElements.StatusBar.showMessage("Port zamknięty!")
+        GlobalElements.StatusBar.showMessage(u"Port zamknięty!")
 
 
 def setup_main_window(MainWindow, app):
@@ -85,14 +89,19 @@ def setup_main_window(MainWindow, app):
     GlobalElements.MainWindow = MainWindow
 
 
+def setup_port_combobox():
+    port_combo_box = GlobalElements.SettingsDialog.findChild(QComboBox, "comboBoxPort")
+    port_combo_box.clear()
+    port_combo_box.addItems(get_ports())
+    port_combo_box.setCurrentIndex(port_combo_box.findText(str(GlobalElements.Config["port"])))
+
+
 def setup_settings_dialog(MainWindow):
     GlobalElements.SettingsDialog = load_ui_widget("ui/settingsDialog.ui", MainWindow)
     GlobalElements.SettingsDialog.findChild(QPushButton, "okSettingsButton").clicked.connect(accept_settings)
     GlobalElements.SettingsDialog.findChild(QPushButton, "cancelSettingsButton").clicked.connect(close_settings)
-    # port combo box settings
-    port_combo_box = GlobalElements.SettingsDialog.findChild(QComboBox, "comboBoxPort")
-    port_combo_box.addItems(get_ports())
-    port_combo_box.setCurrentIndex(port_combo_box.findText(str(GlobalElements.Config["port"])))
+
+    setup_port_combobox()
 
     #baud rate combo box settings
     baud_rate_combo_box = GlobalElements.SettingsDialog.findChild(QComboBox, "comboBoxBaudrate")
@@ -135,9 +144,10 @@ def update_port_description(config_field, text_field):
 
 def setup_serial_port():
     ser = get_serial()
-    if ser.port != GlobalElements.Config["port"] and GlobalElements.Config["port"] in get_ports():
+    if GlobalElements.Config["port"] in rs232.port_dictionary and \
+                    ser.port != rs232.port_dictionary[GlobalElements.Config["port"]]:
         ser.close()
-        ser.port = GlobalElements.Config["port"]
+        ser.port = rs232.port_dictionary[GlobalElements.Config["port"]]
         ser.open()
     ser.baudrate = GlobalElements.Config["baudrate"]
     ser.parity = parity_dictionary[GlobalElements.Config["parity"]]

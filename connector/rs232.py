@@ -6,7 +6,10 @@ import serial
 
 
 def get_ports():
-    return sorted(comports())
+    global port_dictionary
+    ports = comports()
+    port_dictionary = dict([(x, y) for y, x, _ in ports])  # dictionary Readable -> Name accepted py Serial
+    return sorted(port_dictionary.keys())
 
 
 def get_baud_rates():
@@ -36,3 +39,4 @@ parity_dictionary = {
 
 def close_serial():
     get_serial().close()
+

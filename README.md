@@ -1,12 +1,14 @@
 ## description
 
 Project allows easy control of spectroscope through rs232 serial port. 
-Simple GUI provides ways to configure connection and run 
+Simple GUI provides ways to configure connection and run .
+
+Most of the texts are in polish so far.
 
 ### prerequisites
 
 1. Qt 4.8
-2. Python 3+ (should work with Python 2 as well)
+2. Python 2+ (PySerial seems to have problems with Python 3+)
 3. PySide
 4. PySerial
 
