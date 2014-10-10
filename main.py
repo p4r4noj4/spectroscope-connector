@@ -17,6 +17,11 @@ def fill_defaults():
     GlobalElements.Config.setdefault("stopbits", 2)
     GlobalElements.Config.setdefault("bytesize", 7)
     GlobalElements.Config.setdefault("port", 0)
+    GlobalElements.Config.setdefault("directory", "")
+    GlobalElements.Config.setdefault("channel_start", 0)
+    GlobalElements.Config.setdefault("channel_end", 0)
+    GlobalElements.Config.setdefault("output_format", "00")
+    GlobalElements.Config.setdefault("line_numbers", True)
 
 
 def main():

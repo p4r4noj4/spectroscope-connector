@@ -638,6 +638,13 @@
           </item>
          </layout>
         </item>
+        <item row="1" column="0">
+         <widget class="QPushButton" name="openLoadData">
+          <property name="text">
+           <string>Pobierz dane</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
       <item row="3" column="0" colspan="3">

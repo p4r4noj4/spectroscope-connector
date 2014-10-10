@@ -9,11 +9,14 @@ Most of the texts are in polish so far.
 
 1. Qt 4.8
 2. Python 2+ (PySerial seems to have problems with Python 3+)
-3. PySide
-4. PySerial
+  * PySide
+  * PySerial
+  * PyQtGraph
 
-You can install PySide and PySerial using pip command after installing Python:
+You can install Python libraries using pip command after installing Python:
 
-`pip install pyside`
+`pip install pyside` for each library
 
-`pip install pyserial`
+Or just use provided setup script:
+
+`python setup.py install`

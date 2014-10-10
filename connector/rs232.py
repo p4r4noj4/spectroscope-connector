@@ -37,6 +37,18 @@ parity_dictionary = {
 }
 
 
+data_formats = [str(x)+str(y) for x, y in zip("0"*5, [x for x in range(0, 9, 2)])] + [str(x) for x in range(10, 99, 2)]
+
+
 def close_serial():
     get_serial().close()
+
+
+def send(command):
+    start_char = "\x1b".encode()
+    if get_serial().isOpen():
+        get_serial().write(start_char+command)
+        return True
+    else:
+        return False
 
