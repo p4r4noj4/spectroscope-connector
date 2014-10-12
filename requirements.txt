@@ -1,0 +1,3 @@
+PySide
+PySerial
+PyQtGraph==0.9.8
