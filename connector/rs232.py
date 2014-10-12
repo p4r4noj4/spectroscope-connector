@@ -45,9 +45,8 @@ def close_serial():
 
 
 def send(command):
-    start_char = "\x1b".encode()
     if get_serial().isOpen():
-        get_serial().write(start_char+command)
+        get_serial().write(command)
         return True
     else:
         return False

@@ -1,19 +1,22 @@
 # coding=utf-8
 import os
+import random
+
+from pyqtgraph import PlotWidget
+
 from connector import rs232
+
 
 __author__ = 'Igor Jurkowski'
 
 from threading import Thread, Lock
 import time
-import sys
 
 from PySide.QtGui import QAction, QPushButton, QComboBox, QButtonGroup, QLineEdit, QPlainTextEdit, QFileDialog, \
     QToolButton, QMessageBox, QSpinBox, QCheckBox
 from PySide.QtGui import QSortFilterProxyModel, QIntValidator
-from PySide import QtCore
 
-from connector.rs232 import get_ports, get_baud_rates, get_serial, get_parities, parity_dictionary, send
+from connector.rs232 import get_ports, get_baud_rates, get_serial, get_parities, parity_dictionary
 from helpers import load_ui_widget, num
 
 
@@ -135,23 +138,46 @@ def accept_settings():
     GlobalElements.Config["stopbits"] = num(GlobalElements.SettingsDialog.findChild(QButtonGroup, "buttonGroupStopBits") \
                                             .checkedButton().text())
     setup_serial_port()
-    GlobalElements.StatusBar.showMessage("Ustawienia zaakceptowane")
+    GlobalElements.StatusBar.showMessage(u"Ustawienia zaakceptowane")
     GlobalElements.SettingsDialog.accept()
 
 
+def send(cmd):
+    start_char = ""
+    if GlobalElements.MainWindow.findChild(QCheckBox, "checkBoxEsc").isChecked():
+        start_char = "\x1b".encode()
+    rs232.send(start_char + cmd.encode())
+
+
 def send_command():
-    if send(GlobalElements.MainWindow.findChild(QLineEdit, "commandText").text().encode()):
+    if send(GlobalElements.MainWindow.findChild(QLineEdit, "commandText").text()):
         GlobalElements.StatusBar.showMessage(u"Polecenie wysłane")
+        GlobalElements.MainWindow.findChild(QLineEdit, "commandText").clear()
     else:
         GlobalElements.StatusBar.showMessage(u"Port zamknięty!")
 
 
+def plot_data():
+    plot = GlobalElements.MainWindow.findChild(PlotWidget, "plotWidgetData")
+    random.seed()
+    plot.plot([random.randint(1, 600) for _ in range(1, 511)], range(1, 511), pen=(200,200,200), symbolBrush=(255,0,0), symbolPen='w')
+
+
+def update_begin_esc(state):
+    GlobalElements.Config["begin_esc"] = state
+
+
 def setup_main_window(MainWindow, app):
+    MainWindow.resize(GlobalElements.Config["window_width"], GlobalElements.Config["window_height"])
     MainWindow.findChild(QAction, "actionExit").triggered.connect(app.quit)
     MainWindow.findChild(QAction, "actionSettings").triggered.connect(open_settings)
     MainWindow.findChild(QPushButton, "commandSendButton").clicked.connect(send_command)
     MainWindow.findChild(QPushButton, "openLoadData").clicked.connect(open_load_data)
+    check_box_esc = MainWindow.findChild(QCheckBox, "checkBoxEsc")
+    check_box_esc.setChecked(GlobalElements.Config["begin_esc"])
+    check_box_esc.stateChanged.connect(update_begin_esc)
     GlobalElements.MainWindow = MainWindow
+    plot_data()
 
 
 def setup_port_combobox():
@@ -286,32 +312,35 @@ class DataReader(Thread):
             GlobalElements.StatusBar.showMessage(u"Pobieranie i zapisywanie danych")
             send("PR")
             clean_buffer(ser, data_received_box)
-            send(str(self.start_channel))
-            send(str(self.end_channel))
+            send(str(self.start_channel).zfill(4))
+            send(str(self.end_channel).zfill(4))
             send(str(self.output_format))
             send("Y" if self.line_numbers else "N")
-            while True:
-                if end_counter > 3:
-                    print("Timeout")
-                    break
-                if ser.isOpen():
-                    bytes_to_read = ser.inWaiting()
-                    if bytes_to_read:
-                        end_counter = 0
-                        print("Reading " + str(bytes_to_read) + "B")
-                        data = ser.read(bytes_to_read)
-                        print("Received: " + str(data))
-                        if data:
-                            data_received_box.appendPlainText(data)
-                            if "\x03" in data:
-                                print("End of text received")
-                                break
+            with open(self.file_path) as data_file:
+                data_file.write(self.description)
+                while True:
+                    if end_counter > 3:
+                        print("Timeout")
+                        break
+                    if ser.isOpen():
+                        bytes_to_read = ser.inWaiting()
+                        if bytes_to_read:
+                            end_counter = 0
+                            print("Reading " + str(bytes_to_read) + "B")
+                            data = ser.read(bytes_to_read)
+                            print("Received: " + str(data))
+                            if data:
+                                data_received_box.appendPlainText(data)
+                                data_file.write(data)
+                                if "\x03" in data:
+                                    print("End of text received")
+                                    break
+                        else:
+                            time.sleep(0.5)
+                            end_counter += 1
                     else:
                         time.sleep(0.5)
                         end_counter += 1
-                else:
-                    time.sleep(0.5)
-                    end_counter += 1
 
             GlobalElements.StatusBar.showMessage(u"Dane pobrane")
 

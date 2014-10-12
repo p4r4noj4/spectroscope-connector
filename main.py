@@ -4,6 +4,7 @@ import shelve
 import threading
 
 from PySide import QtGui
+from pyqtgraph import PlotWidget
 
 from connector.rs232 import close_serial
 from ui.interactions import GlobalElements, setup_main_window, setup_settings_dialog, setup_serial_port, \
@@ -22,13 +23,16 @@ def fill_defaults():
     GlobalElements.Config.setdefault("channel_end", 0)
     GlobalElements.Config.setdefault("output_format", "00")
     GlobalElements.Config.setdefault("line_numbers", True)
+    GlobalElements.Config.setdefault("begin_esc", True)
+    GlobalElements.Config.setdefault("window_width", 840)
+    GlobalElements.Config.setdefault("window_height", 600)
 
 
 def main():
     app = QtGui.QApplication(sys.argv)
     GlobalElements.Config = shelve.open("config")
     fill_defaults()
-    MainWindow = load_ui_widget("ui/mainwindow.ui")
+    MainWindow = load_ui_widget("ui/mainwindow.ui", None, [PlotWidget])
     setup_main_window(MainWindow, app)
     setup_settings_dialog(MainWindow)
     GlobalElements.StatusBar = MainWindow.statusBar()
@@ -42,7 +46,9 @@ def main():
     finally:
         # cleanup
         print("Cleaning up!")
-        GlobalElements.StatusBar.showMessage("Wyłączanie")
+        GlobalElements.Config["window_width"] = MainWindow.width()
+        GlobalElements.Config["window_height"] = MainWindow.height()
+        GlobalElements.StatusBar.showMessage(u"Wyłączanie")
         GlobalElements.ReaderThread.stop()
         GlobalElements.ReaderThread.join()
         close_serial()
