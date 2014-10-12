@@ -160,7 +160,7 @@ def send_command():
 def plot_data():
     plot = GlobalElements.MainWindow.findChild(PlotWidget, "plotWidgetData")
     random.seed()
-    plot.plot([random.randint(1, 600) for _ in range(1, 511)], range(1, 511), pen=(200,200,200), symbolBrush=(255,0,0), symbolPen='w')
+    plot.plot(range(1, 511), [random.randint(x, x+100) for x in range(511, 1, -1)], pen=(200, 200, 200), symbol=None, clear=True)
 
 
 def update_begin_esc(state):
