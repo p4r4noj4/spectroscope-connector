@@ -46,6 +46,7 @@ def close_serial():
 
 def send(command):
     if get_serial().isOpen():
+        print("Sending: " + command)
         get_serial().write(command)
         return True
     else:

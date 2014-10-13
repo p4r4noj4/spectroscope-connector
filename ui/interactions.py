@@ -145,16 +145,18 @@ def accept_settings():
 def send(cmd):
     start_char = ""
     if GlobalElements.MainWindow.findChild(QCheckBox, "checkBoxEsc").isChecked():
-        start_char = "\x1b".encode()
-    rs232.send(start_char + cmd.encode())
+        start_char = "\x1b"
+    return rs232.send((start_char + cmd).encode())
 
 
 def send_command():
-    if send(GlobalElements.MainWindow.findChild(QLineEdit, "commandText").text()):
-        GlobalElements.StatusBar.showMessage(u"Polecenie wysłane")
-        GlobalElements.MainWindow.findChild(QLineEdit, "commandText").clear()
-    else:
-        GlobalElements.StatusBar.showMessage(u"Port zamknięty!")
+    to_send = GlobalElements.MainWindow.findChild(QLineEdit, "commandText").text()
+    if to_send:
+        if send(to_send):
+            GlobalElements.StatusBar.showMessage(u"Polecenie wysłane")
+            GlobalElements.MainWindow.findChild(QLineEdit, "commandText").clear()
+        else:
+            GlobalElements.StatusBar.showMessage(u"Port zamknięty!")
 
 
 def plot_data():
@@ -173,6 +175,7 @@ def setup_main_window(MainWindow, app):
     MainWindow.findChild(QAction, "actionSettings").triggered.connect(open_settings)
     MainWindow.findChild(QPushButton, "commandSendButton").clicked.connect(send_command)
     MainWindow.findChild(QPushButton, "openLoadData").clicked.connect(open_load_data)
+    MainWindow.findChild(QLineEdit, "commandText").returnPressed.connect(send_command)
     check_box_esc = MainWindow.findChild(QCheckBox, "checkBoxEsc")
     check_box_esc.setChecked(GlobalElements.Config["begin_esc"])
     check_box_esc.stateChanged.connect(update_begin_esc)
