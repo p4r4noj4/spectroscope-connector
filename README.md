@@ -24,7 +24,7 @@ Or just use provided requirements file:
 ##### known issues:
 
 * if there is problem with SciPy/NumPy installation for PyQtGraph - try using official installers:
- * [SciPy](http://www.scipy.org/)
+ * [SciPy](http://www.scipy.org/install.html)
  * [NumPy](http://docs.scipy.org/doc/numpy/user/install.html)
 
 #### MIT license

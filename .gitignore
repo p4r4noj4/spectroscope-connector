@@ -1,6 +1,9 @@
 __pycache__
 config
 config.db
+config.bak
+config.dir
+config.dat
 *.autosave
 *.pyc
 
