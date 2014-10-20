@@ -36,6 +36,12 @@ parity_dictionary = {
     "Mark": serial.PARITY_MARK
 }
 
+stopbits_dictionary = {
+    1: serial.STOPBITS_ONE,
+    1.5: serial.STOPBITS_ONE_POINT_FIVE,
+    2: serial.STOPBITS_TWO
+}
+
 
 data_formats = [str(x)+str(y) for x, y in zip("0"*5, [x for x in range(0, 9, 2)])] + [str(x) for x in range(10, 99, 2)]
 

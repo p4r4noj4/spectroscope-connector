@@ -90,8 +90,8 @@ def load_data():
         msgBox = QMessageBox()
         msgBox.setText(u"Plik o podanej nazwie już istnieje.")
         msgBox.setInformativeText(u"Czy chcesz go nadpisać?")
-        msgBox.addButton("Tak", QMessageBox.AcceptRole)
-        abortButton = msgBox.addButton("Nie", QMessageBox.Abort)
+        msgBox.addButton(u"Tak", QMessageBox.AcceptRole)
+        abortButton = msgBox.addButton(u"Nie", QMessageBox.Abort)
         msgBox.exec_()
         if msgBox.buttonClicked() == abortButton:
             return
@@ -109,7 +109,7 @@ def load_data():
         GlobalElements.LoadFilesDialog.accept()
     else:
         msgBox = QMessageBox()
-        msgBox.setText(U"Niepoprawna nazwa pliku!")
+        msgBox.setText(u"Niepoprawna nazwa pliku!")
         msgBox.exec_()
 
 
@@ -146,7 +146,7 @@ def send(cmd):
     start_char = ""
     if GlobalElements.MainWindow.findChild(QCheckBox, "checkBoxEsc").isChecked():
         start_char = "\x1b"
-    return rs232.send((start_char + cmd).encode())
+    return rs232.send(start_char + cmd.encode())
 
 
 def send_command():
@@ -248,11 +248,11 @@ def setup_serial_port():
         ser.close()
         ser.port = rs232.port_dictionary[GlobalElements.Config["port"]]
         ser.open()
+        update_port_description("port", "textPort")
     ser.baudrate = GlobalElements.Config["baudrate"]
     ser.parity = parity_dictionary[GlobalElements.Config["parity"]]
     ser.bytesize = GlobalElements.Config["bytesize"]
-    ser.stopbits = GlobalElements.Config["stopbits"]
-    update_port_description("port", "textPort")
+    ser.stopbits = rs232.stopbits_dictionary[GlobalElements.Config["stopbits"]]
     update_port_description("baudrate", "textBaudRate")
     update_port_description("parity", "textParity")
     update_port_description("bytesize", "textByteSize")
@@ -270,6 +270,7 @@ class Reader(Thread):
         while self.reader_alive:
             with GlobalElements.ReaderLock:
                 if ser.isOpen():
+                    time.sleep(1)
                     bytes_to_read = ser.inWaiting()
                     if bytes_to_read:
                         print("Reading " + str(bytes_to_read) + "B")
@@ -278,9 +279,9 @@ class Reader(Thread):
                         if data:
                             data_received_box.appendPlainText(data)
                     else:
-                        time.sleep(0.5)
+                        time.sleep(2)
                 else:
-                    time.sleep(0.5)
+                    time.sleep(2)
 
     def stop(self):
         self.reader_alive = False
@@ -319,9 +320,10 @@ class DataReader(Thread):
             send(str(self.end_channel).zfill(4))
             send(str(self.output_format))
             send("Y" if self.line_numbers else "N")
-            with open(self.file_path) as data_file:
+            with open(self.file_path, "w+") as data_file:
                 data_file.write(self.description)
                 while True:
+                    time.sleep(0.5)
                     if end_counter > 3:
                         print("Timeout")
                         break
@@ -339,10 +341,10 @@ class DataReader(Thread):
                                     print("End of text received")
                                     break
                         else:
-                            time.sleep(0.5)
+                            time.sleep(2)
                             end_counter += 1
                     else:
-                        time.sleep(0.5)
+                        time.sleep(2)
                         end_counter += 1
 
             GlobalElements.StatusBar.showMessage(u"Dane pobrane")
